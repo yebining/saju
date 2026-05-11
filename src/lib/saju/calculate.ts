@@ -1,4 +1,4 @@
-import { Solar, Lunar } from "lunar-javascript";
+import { Solar, Lunar, LunarYear } from "lunar-javascript";
 import {
   HEAVENLY_STEMS,
   EARTHLY_BRANCHES,
@@ -25,7 +25,19 @@ export function calculateSaju(input: SajuInput): SajuPillars {
   // 1. 입력을 양력(Solar) 기준으로 변환
   let solar;
   if (input.isLunar) {
-    const lunar = Lunar.fromYmd(input.year, input.month, input.day);
+    // lunar-javascript는 윤달을 음수 month로 표현한다 (예: 2023 윤2월 → month = -2).
+    // 참고: node_modules/lunar-javascript/lunar.js 의 LunarMonth.isLeap() = (month < 0)
+    let lunarMonth = input.month;
+    if (input.isLeapMonth) {
+      const leap = LunarYear.fromYear(input.year).getLeapMonth();
+      if (leap !== input.month) {
+        throw new Error(
+          `${input.year}년에는 윤${input.month}월이 존재하지 않습니다.`
+        );
+      }
+      lunarMonth = -input.month;
+    }
+    const lunar = Lunar.fromYmd(input.year, lunarMonth, input.day);
     solar = lunar.getSolar();
   } else {
     solar = Solar.fromYmd(input.year, input.month, input.day);
