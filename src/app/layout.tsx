@@ -6,8 +6,8 @@ const notoSerif = Noto_Serif_KR({ subsets: ["latin"], weight: ["400", "700"], va
 const notoSans = Noto_Sans_KR({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "관계 사주 — 시작해도 될까",
-  description: "썸/연인 시작 전, 결정에 도움 받는 사주 풀이",
+  title: "사주 한 입 — 오늘의 나를 풀어보다",
+  description: "생일만 알려주면 AI가 종합·연애·재물·건강운과 궁합까지 따뜻하게 풀어드려요.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

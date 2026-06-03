@@ -1,65 +1,61 @@
-import Image from "next/image";
+import Link from "next/link";
+
+type Category = {
+  key: string;
+  emoji: string;
+  name: string;
+  desc: string;
+  wide?: boolean;
+};
+
+const CATEGORIES: Category[] = [
+  { key: "general", emoji: "🌿", name: "종합 사주", desc: "타고난 기운의 균형" },
+  { key: "love", emoji: "💗", name: "연애운", desc: "지금의 연애 흐름" },
+  { key: "wealth", emoji: "💰", name: "재물운", desc: "돈과 기회의 결" },
+  { key: "health", emoji: "🍀", name: "건강운", desc: "몸과 컨디션의 기운" },
+  { key: "relationship", emoji: "🫶", name: "관계 궁합", desc: "두 사람의 합·충·생·극", wide: true },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="mx-auto flex min-h-screen max-w-md flex-col px-6 py-14">
+      <header className="mb-10 text-center">
+        <p className="text-sm text-muted">안녕하세요 👋</p>
+        <h1 className="mt-2 text-3xl leading-snug text-fg">
+          오늘은
+          <br />
+          <span className="text-accent">뭐가 궁금하세요?</span>
+        </h1>
+        <p className="mt-4 text-sm leading-relaxed text-muted">
+          생일만 알려주면 AI가 당신의 사주를
+          <br />
+          따뜻하게 풀어드려요.
+        </p>
+      </header>
+
+      <nav className="grid grid-cols-2 gap-3">
+        {CATEGORIES.map((c) => (
+          <Link
+            key={c.key}
+            href={`/check/${c.key}`}
+            className={`group rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-accent hover:shadow-md ${
+              c.wide ? "col-span-2" : ""
+            }`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <span className="block text-2xl">{c.emoji}</span>
+            <span className="mt-2 block font-bold text-fg group-hover:text-accent">
+              {c.name}
+            </span>
+            <span className="mt-0.5 block text-xs text-muted">{c.desc}</span>
+          </Link>
+        ))}
+      </nav>
+
+      <p className="mt-auto pt-10 text-center text-xs leading-relaxed text-muted">
+        명리학 기본 규칙으로 풀이해요. 회원가입 없이 바로,
+        <br />
+        결과는 7일간만 보관됩니다.
+      </p>
+    </main>
   );
 }
