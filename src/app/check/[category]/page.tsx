@@ -1,10 +1,11 @@
 "use client";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isCategory, getCategory } from "@/lib/categories";
 import { BirthInput, emptyPerson } from "@/components/birth-input";
 import { PersonInput, CheckInput } from "@/types";
+import { loadMySaju, saveMySaju } from "@/lib/my-saju";
 
 export default function CheckPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = use(params);
@@ -12,6 +13,25 @@ export default function CheckPage({ params }: { params: Promise<{ category: stri
   const [me, setMe] = useState<PersonInput>(emptyPerson());
   const [them, setThem] = useState<PersonInput>(emptyPerson());
   const [step, setStep] = useState<1 | 2>(1);
+  const [ready, setReady] = useState(false);
+
+  // 내 사주가 저장돼 있으면 불러온다. 1인 카테고리는 곧바로 결과로 보낸다(재입력 불필요).
+  useEffect(() => {
+    if (!isCategory(category)) {
+      setReady(true);
+      return;
+    }
+    const saved = loadMySaju();
+    if (saved) setMe(saved);
+    if (saved && getCategory(category).persons === 1) {
+      const input: CheckInput = { category, me: saved };
+      const id = crypto.randomUUID();
+      sessionStorage.setItem(`saju:${id}`, JSON.stringify(input));
+      router.replace(`/result/${id}`);
+      return;
+    }
+    setReady(true);
+  }, [category, router]);
 
   if (!isCategory(category)) {
     return (
@@ -21,10 +41,16 @@ export default function CheckPage({ params }: { params: Promise<{ category: stri
       </main>
     );
   }
+
   const meta = getCategory(category);
   const twoPerson = meta.persons === 2;
 
+  if (!ready) {
+    return <div className="p-12 text-center text-muted">내 사주 불러오는 중…</div>;
+  }
+
   const submit = () => {
+    saveMySaju(me); // 내 정보 저장(다음에 재사용)
     const input: CheckInput = { category, me, ...(twoPerson ? { them } : {}) };
     const id = crypto.randomUUID();
     sessionStorage.setItem(`saju:${id}`, JSON.stringify(input));

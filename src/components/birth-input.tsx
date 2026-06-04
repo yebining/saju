@@ -14,6 +14,10 @@ type Props = {
 
 const field = "w-full rounded-xl border border-border bg-card p-3 text-center text-base text-fg outline-none focus:border-accent";
 
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const toDateValue = (p: PersonInput) => `${p.year}-${pad2(p.month)}-${pad2(p.day)}`;
+const toTimeValue = (p: PersonInput) => `${pad2(p.hour ?? 12)}:${pad2(p.minute ?? 0)}`;
+
 export function BirthInput({ value, onChange, title }: Props) {
   const [hourUnknown, setHourUnknown] = useState(value.hour === null);
 
@@ -36,13 +40,22 @@ export function BirthInput({ value, onChange, title }: Props) {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        <input type="number" inputMode="numeric" min={1900} max={2026} value={value.year}
-          onChange={(e) => onChange({ ...value, year: +e.target.value })} placeholder="년" className={field} />
-        <input type="number" inputMode="numeric" min={1} max={12} value={value.month}
-          onChange={(e) => onChange({ ...value, month: +e.target.value })} placeholder="월" className={field} />
-        <input type="number" inputMode="numeric" min={1} max={31} value={value.day}
-          onChange={(e) => onChange({ ...value, day: +e.target.value })} placeholder="일" className={field} />
+      <div>
+        <label className="mb-1 block text-sm text-muted">생년월일</label>
+        <input
+          type="date"
+          value={toDateValue(value)}
+          min="1900-01-01"
+          max="2026-12-31"
+          onChange={(e) => {
+            const [y, m, d] = e.target.value.split("-").map(Number);
+            if (y && m && d) onChange({ ...value, year: y, month: m, day: d });
+          }}
+          className={field}
+        />
+        <p className="mt-1 text-xs text-muted">
+          {value.isLunar ? "고른 날짜를 음력으로 풀이해요" : "고른 날짜를 양력으로 풀이해요"}
+        </p>
       </div>
 
       {value.isLunar && (
@@ -63,11 +76,21 @@ export function BirthInput({ value, onChange, title }: Props) {
       </label>
 
       {!hourUnknown && (
-        <div className="grid grid-cols-2 gap-2">
-          <input type="number" inputMode="numeric" min={0} max={23} value={value.hour ?? 0}
-            onChange={(e) => onChange({ ...value, hour: +e.target.value })} placeholder="시" className={field} />
-          <input type="number" inputMode="numeric" min={0} max={59} value={value.minute ?? 0}
-            onChange={(e) => onChange({ ...value, minute: +e.target.value })} placeholder="분" className={field} />
+        <div>
+          <label className="mb-1 block text-sm text-muted">태어난 시간</label>
+          <input
+            type="time"
+            value={toTimeValue(value)}
+            onChange={(e) => {
+              const [h, mi] = e.target.value.split(":").map(Number);
+              onChange({
+                ...value,
+                hour: Number.isFinite(h) ? h : 0,
+                minute: Number.isFinite(mi) ? mi : 0,
+              });
+            }}
+            className={field}
+          />
         </div>
       )}
 

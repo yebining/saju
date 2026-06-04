@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MySajuCard } from "@/components/my-saju-card";
 
 type Category = {
   key: string;
@@ -32,6 +33,8 @@ export default function Home() {
           따뜻하게 풀어드려요.
         </p>
       </header>
+
+      <MySajuCard />
 
       <nav className="grid grid-cols-2 gap-3">
         {CATEGORIES.map((c) => (
