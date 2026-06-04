@@ -20,6 +20,10 @@ const STRONG_LABEL: Record<string, string> = {
   wood: "성장·추진력", fire: "표현·열정", earth: "안정·신뢰", metal: "결단·원칙", water: "유연·지혜",
 };
 
+const KO_LABEL: Record<keyof OhaengCount, string> = {
+  wood: "목", fire: "화", earth: "토", metal: "금", water: "수",
+};
+
 function dominant(count: OhaengCount): keyof OhaengCount {
   return (Object.keys(count) as (keyof OhaengCount)[]).reduce((a, b) => (count[b] > count[a] ? b : a));
 }
@@ -48,13 +52,13 @@ export function generateDummyReading(
   const reading: Reading = {
     score,
     headline: CAT_HEADLINE[category],
-    ohaeng_note: `${STRONG_LABEL[dom]}의 ${dom} 기운이 두드러지고, ${weak} 기운은 보완이 필요해요.`,
+    ohaeng_note: `${STRONG_LABEL[dom]}의 ${KO_LABEL[dom]} 기운이 두드러지고, ${KO_LABEL[weak]} 기운은 보완이 필요해요.`,
     strengths: [
-      { title: STRONG_LABEL[dom], detail: `${dom} 기운이 강해 이 분야에서 자기다움이 잘 드러납니다.` },
+      { title: STRONG_LABEL[dom], detail: `${KO_LABEL[dom]} 기운이 강해 이 분야에서 자기다움이 잘 드러납니다.` },
       { title: "회복 탄력성", detail: "기운의 흐름이 막혀도 스스로 균형을 되찾는 편입니다." },
     ],
     cautions: [
-      { title: `${weak} 기운 부족`, detail: `${weak} 기운이 약해 결정·마무리에서 아쉬움이 생길 수 있어요.` },
+      { title: `${KO_LABEL[weak]} 기운 부족`, detail: `${KO_LABEL[weak]} 기운이 약해 결정·마무리에서 아쉬움이 생길 수 있어요.` },
     ],
     advice: "오늘 한 가지만 정해 작게 실천해보세요. 사주는 흐름이라 방향이 더 중요해요.",
   };
