@@ -858,7 +858,7 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
     }
     setView({
       category: input.category, mePillars, themPillars, meOhaeng, themOhaeng, reading,
-      hourUnknown: !input.me.hour || (!!input.them && !input.them.hour),
+      hourUnknown: input.me.hour === null || (!!input.them && input.them.hour === null),
     });
   }, [id, router]);
 
