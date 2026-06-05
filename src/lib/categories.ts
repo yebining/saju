@@ -2,7 +2,6 @@ export type Category = "general" | "love" | "wealth" | "health" | "relationship"
 
 export type CategoryMeta = {
   key: Category;
-  emoji: string;
   name: string;
   desc: string;
   persons: 1 | 2;
@@ -10,11 +9,11 @@ export type CategoryMeta = {
 };
 
 export const CATEGORIES: CategoryMeta[] = [
-  { key: "general", emoji: "🌿", name: "종합 사주", desc: "타고난 기운의 균형", persons: 1, question: "타고난 기운을 풀어드려요" },
-  { key: "love", emoji: "💗", name: "연애운", desc: "지금의 연애 흐름", persons: 1, question: "지금의 연애 흐름을 봐드려요" },
-  { key: "wealth", emoji: "💰", name: "재물운", desc: "돈과 기회의 결", persons: 1, question: "돈과 기회의 결을 봐드려요" },
-  { key: "health", emoji: "🍀", name: "건강운", desc: "몸과 컨디션의 기운", persons: 1, question: "몸과 컨디션의 기운을 봐드려요" },
-  { key: "relationship", emoji: "🫶", name: "관계 궁합", desc: "두 사람의 합·충·생·극", persons: 2, question: "두 사람의 궁합을 봐드려요" },
+  { key: "general", name: "종합 사주", desc: "타고난 기운의 균형", persons: 1, question: "타고난 기운을 풀어드려요" },
+  { key: "love", name: "연애운", desc: "지금의 연애 흐름", persons: 1, question: "지금의 연애 흐름을 봐드려요" },
+  { key: "wealth", name: "재물운", desc: "돈과 기회의 결", persons: 1, question: "돈과 기회의 결을 봐드려요" },
+  { key: "health", name: "건강운", desc: "몸과 컨디션의 기운", persons: 1, question: "몸과 컨디션의 기운을 봐드려요" },
+  { key: "relationship", name: "관계 궁합", desc: "두 사람의 합·충·생·극", persons: 2, question: "두 사람의 궁합을 봐드려요" },
 ];
 
 export const CATEGORY_KEYS = CATEGORIES.map((c) => c.key) as Category[];

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isCategory, getCategory } from "@/lib/categories";
 import { BirthInput, emptyPerson } from "@/components/birth-input";
+import { BowlIcon } from "@/components/bowl-icon";
 import { PersonInput, CheckInput } from "@/types";
 import { loadMySaju, saveMySaju } from "@/lib/my-saju";
 
@@ -59,7 +60,9 @@ export default function CheckPage({ params }: { params: Promise<{ category: stri
 
   return (
     <main className="mx-auto max-w-md px-6 py-12">
-      <p className="text-sm font-bold text-accent">{meta.emoji} {meta.name}</p>
+      <p className="flex items-center gap-1.5 text-sm font-bold text-accent">
+        <BowlIcon variant={category} className="h-6 w-6" /> {meta.name}
+      </p>
       <h1 className="mt-1 mb-6 text-2xl text-fg">{meta.question}</h1>
 
       {twoPerson && (
