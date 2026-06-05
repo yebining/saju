@@ -20,14 +20,14 @@ const STRONG_LABEL: Record<string, string> = {
   wood: "성장·추진력", fire: "표현·열정", earth: "안정·신뢰", metal: "결단·원칙", water: "유연·지혜",
 };
 
-const KO_LABEL: Record<keyof OhaengCount, string> = {
+export const KO_LABEL: Record<keyof OhaengCount, string> = {
   wood: "목", fire: "화", earth: "토", metal: "금", water: "수",
 };
 
-function dominant(count: OhaengCount): keyof OhaengCount {
+export function dominant(count: OhaengCount): keyof OhaengCount {
   return (Object.keys(count) as (keyof OhaengCount)[]).reduce((a, b) => (count[b] > count[a] ? b : a));
 }
-function weakest(count: OhaengCount): keyof OhaengCount {
+export function weakest(count: OhaengCount): keyof OhaengCount {
   return (Object.keys(count) as (keyof OhaengCount)[]).reduce((a, b) => (count[b] < count[a] ? b : a));
 }
 

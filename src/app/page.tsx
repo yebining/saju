@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CATEGORIES } from "@/lib/categories";
 import { BowlIcon } from "@/components/bowl-icon";
 import { BrandLogo } from "@/components/brand-logo";
+import { TodayBite } from "@/components/today-bite";
 import { MySajuCard } from "@/components/my-saju-card";
 
 export default function Home() {
@@ -20,6 +21,8 @@ export default function Home() {
           따뜻하게 풀어드려요.
         </p>
       </header>
+
+      <TodayBite />
 
       <MySajuCard />
 

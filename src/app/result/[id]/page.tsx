@@ -12,6 +12,7 @@ import { ScoreGauge } from "@/components/score-gauge";
 import { BowlIcon } from "@/components/bowl-icon";
 import { OhaengBar } from "@/components/ohaeng-bar";
 import { ReadingSections } from "@/components/reading-sections";
+import { DeeperReading } from "@/components/deeper-reading";
 import { ManseTable } from "@/components/manse-table";
 import { SajuPillars } from "@/lib/saju/data";
 
@@ -79,6 +80,8 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
       </p>
 
       <ReadingSections reading={view.reading} />
+
+      <DeeperReading category={view.category} count={view.meOhaeng} />
 
       <details className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <summary className="cursor-pointer text-sm font-bold text-muted">내 사주 자세히 보기</summary>
