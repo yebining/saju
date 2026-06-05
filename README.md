@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 사주 한 입
 
-## Getting Started
+복잡한 사주를, 한 입씩 가볍게. 생일만 알려주면 AI가 종합·연애·재물·건강운과 궁합까지 따뜻하게 풀어주는 사주 서비스.
 
-First, run the development server:
+🔗 라이브: https://saju-tawny-gamma.vercel.app
+
+## 컨셉 & 브랜드
+
+서비스 컨셉·톤·브랜드 정본은 **[concept/CONCEPT.md](./concept/CONCEPT.md)** 참고.
+
+## 로컬 실행
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run test:run # 단위 테스트
+npm run build    # 프로덕션 빌드
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 구조
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `src/app` — 라우트 (`/`, `/check/[category]`, `/result/[id]`)
+- `src/components` — UI 컴포넌트
+- `src/lib/saju` — 사주 계산·풀이 로직 (순수 함수, 테스트 포함)
+- `src/lib/categories.ts` — 카테고리 단일 소스
+- `docs/superpowers/` — 설계(spec)·구현(plan) 문서
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+기술 스택: Next.js 16(App Router) · TypeScript · Tailwind v4 · lunar-javascript · zod · vitest.

@@ -4,7 +4,8 @@
   --color-bg: #FBF3E9;       /* 크림 */
   --color-bg2: #F7E7D8;      /* 그라데이션 하단 (피치) */
   --color-fg: #4A3B30;       /* 진한 브라운 텍스트 */
-  --color-accent: #B5562F;   /* 테라코타 (포인트/점수/CTA) */
+  --color-accent: #6E59A5;   /* 라벤더-퍼플 (포인트/점수/CTA) */
+  --color-accent-soft: #EDE7F6; /* 연보라 (아이콘/배경용) */
   --color-muted: #9B8473;    /* 보조 텍스트 */
   --color-card: #FFFFFF;     /* 카드 */
   --color-border: #EBD9C7;   /* 부드러운 테두리 */

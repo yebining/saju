@@ -10,7 +10,7 @@ export function ScoreGauge({ score }: { score: number }) {
     <div className="relative mx-auto h-32 w-32">
       <svg width="128" height="128" className="-rotate-90">
         <circle cx="64" cy="64" r={R} fill="none" stroke="#EBD9C7" strokeWidth="11" />
-        <circle cx="64" cy="64" r={R} fill="none" stroke="#B5562F" strokeWidth="11"
+        <circle cx="64" cy="64" r={R} fill="none" stroke="#6E59A5" strokeWidth="11"
           strokeLinecap="round" strokeDasharray={C} strokeDashoffset={offset} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">

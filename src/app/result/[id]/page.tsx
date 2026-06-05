@@ -9,6 +9,7 @@ import { describeRelation } from "@/lib/saju/relations";
 import { generateDummyReading } from "@/lib/saju/reading-dummy";
 import { Reading } from "@/lib/schema";
 import { ScoreGauge } from "@/components/score-gauge";
+import { BowlIcon } from "@/components/bowl-icon";
 import { OhaengBar } from "@/components/ohaeng-bar";
 import { ReadingSections } from "@/components/reading-sections";
 import { ManseTable } from "@/components/manse-table";
@@ -62,8 +63,8 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
       )}
 
       <div className="text-center">
-        <span className="inline-block rounded-full bg-card px-3 py-1 text-xs font-bold text-accent shadow-sm">
-          {meta.emoji} {meta.name}
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-xs font-bold text-accent shadow-sm">
+          <BowlIcon variant={view.category} className="h-5 w-5" /> {meta.name}
         </span>
         <div className="mt-4"><ScoreGauge score={view.reading.score} /></div>
         <p className="mt-4 px-4 font-serif text-lg text-fg">&ldquo;{view.reading.headline}&rdquo;</p>
