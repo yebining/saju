@@ -6,7 +6,10 @@ import { CheckInput } from "@/types";
 import { getCategory } from "@/lib/categories";
 import { calculateSaju, countOhaeng } from "@/lib/saju/calculate";
 import { describeRelation } from "@/lib/saju/relations";
-import { generateDummyReading } from "@/lib/saju/reading-dummy";
+import { scoreFromOhaeng, generateDummyReading } from "@/lib/saju/reading-dummy";
+import { ReadingFacts } from "@/lib/saju/reading-facts";
+import { DeepReading, generateDeepBite } from "@/lib/saju/reading-deep";
+import { readCache, writeCache } from "@/lib/reading-cache";
 import { Reading } from "@/lib/schema";
 import { ScoreGauge } from "@/components/score-gauge";
 import { BowlIcon } from "@/components/bowl-icon";
@@ -23,6 +26,7 @@ type View = {
   meOhaeng: ReturnType<typeof countOhaeng>;
   themOhaeng: ReturnType<typeof countOhaeng> | null;
   reading: Reading;
+  deep: DeepReading;
   hourUnknown: boolean;
 };
 
@@ -35,24 +39,58 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
     const raw = sessionStorage.getItem(`saju:${id}`);
     if (!raw) { router.replace("/not-found"); return; }
     const input: CheckInput = JSON.parse(raw);
+
     const mePillars = calculateSaju(input.me);
     const meOhaeng = countOhaeng(mePillars);
     const themPillars = input.them ? calculateSaju(input.them) : null;
     const themOhaeng = themPillars ? countOhaeng(themPillars) : null;
+    const score = scoreFromOhaeng(meOhaeng, input.category);
     const relationLine = themPillars
       ? `나 ${mePillars.day.stem.han}(${mePillars.day.stem.ko}) × 상대 ${themPillars.day.stem.han}(${themPillars.day.stem.ko})`
       : undefined;
-    const reading = generateDummyReading(input.category, meOhaeng, { relationLine });
-    if (input.category === "relationship" && themPillars) {
-      reading.ohaeng_note = describeRelation(mePillars.day, themPillars.day);
-    }
-    setView({
-      category: input.category, mePillars, themPillars, meOhaeng, themOhaeng, reading,
-      hourUnknown: input.me.hour === null || (!!input.them && input.them.hour === null),
-    });
+    const relationOhaengNote = themPillars
+      ? describeRelation(mePillars.day, themPillars.day)
+      : undefined;
+    const hourUnknown =
+      input.me.hour === null || (!!input.them && input.them.hour === null);
+
+    const baseView = { category: input.category, mePillars, themPillars, meOhaeng, themOhaeng, hourUnknown };
+
+    // 1) 캐시 우선
+    const cached = readCache(input);
+    if (cached) { setView({ ...baseView, ...cached }); return; }
+
+    // 2) 서버 라우트
+    const facts: ReadingFacts = {
+      category: input.category, score, meOhaeng,
+      themOhaeng, relationLine, relationOhaengNote, hourUnknown,
+    };
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/reading", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(facts),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json() as { reading: Reading; deep: DeepReading };
+        if (cancelled) return;
+        writeCache(input, data);
+        setView({ ...baseView, ...data });
+      } catch {
+        // 3) 네트워크 실패 → 로컬 더미 폴백
+        if (cancelled) return;
+        const reading = generateDummyReading(input.category, meOhaeng, { relationLine });
+        reading.score = score;
+        if (input.category === "relationship" && relationOhaengNote) reading.ohaeng_note = relationOhaengNote;
+        setView({ ...baseView, reading, deep: generateDeepBite(input.category, meOhaeng) });
+      }
+    })();
+    return () => { cancelled = true; };
   }, [id, router]);
 
-  if (!view) return <div className="p-12 text-center text-muted">풀이 불러오는 중…</div>;
+  if (!view) return <div className="p-12 text-center text-muted">풀이 우려내는 중…</div>;
   const meta = getCategory(view.category);
 
   return (
@@ -81,7 +119,7 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
 
       <ReadingSections reading={view.reading} />
 
-      <DeeperReading category={view.category} count={view.meOhaeng} />
+      <DeeperReading category={view.category} count={view.meOhaeng} deep={view.deep} />
 
       <details className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <summary className="cursor-pointer text-sm font-bold text-muted">내 사주 자세히 보기</summary>
