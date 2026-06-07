@@ -78,9 +78,10 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
         if (cancelled) return;
         writeCache(input, data);
         setView({ ...baseView, ...data });
-      } catch {
+      } catch (e) {
         // 3) 네트워크 실패 → 로컬 더미 폴백
         if (cancelled) return;
+        console.warn("[ResultPage] /api/reading 실패, 더미 폴백:", e);
         const reading = generateDummyReading(input.category, meOhaeng, { relationLine });
         reading.score = score;
         if (input.category === "relationship" && relationOhaengNote) reading.ohaeng_note = relationOhaengNote;
