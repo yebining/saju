@@ -21,3 +21,17 @@ export const ReadingFactsSchema = z.object({
 });
 
 export type ReadingFacts = z.infer<typeof ReadingFactsSchema>;
+
+export const RichFactsSchema = ReadingFactsSchema.extend({
+  pillars: z.object({
+    year: z.object({ stemHan: z.string(), stemKo: z.string(), branchHan: z.string(), branchKo: z.string() }),
+    month: z.object({ stemHan: z.string(), stemKo: z.string(), branchHan: z.string(), branchKo: z.string() }),
+    day: z.object({ stemHan: z.string(), stemKo: z.string(), branchHan: z.string(), branchKo: z.string() }),
+    hour: z.object({ stemHan: z.string(), stemKo: z.string(), branchHan: z.string(), branchKo: z.string() }).nullable(),
+  }),
+  daeun: z.array(z.object({
+    startAge: z.number(), endAge: z.number(), startYear: z.number(), ganzhi: z.string(),
+  })),
+});
+
+export type RichFacts = z.infer<typeof RichFactsSchema>;
