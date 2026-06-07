@@ -43,3 +43,24 @@ describe("calculateSaju", () => {
     expect(result.year.branch.han).toBe("卯");
   });
 });
+
+describe("진태양시 보정", () => {
+  const me = { year: 1999, month: 8, day: 19, hour: 1, minute: 2, isLunar: false, isLeapMonth: false };
+
+  it("시주가 경도 보정으로 壬子가 된다(癸丑 아님)", () => {
+    const p = calculateSaju(me);
+    expect(p.hour!.stem.han).toBe("壬");
+    expect(p.hour!.branch.han).toBe("子");
+  });
+
+  it("오행이 표준과 일치한다 (목2 화0 토1 금1 수4)", () => {
+    expect(countOhaeng(calculateSaju(me))).toEqual({ wood: 2, fire: 0, earth: 1, metal: 1, water: 4 });
+  });
+
+  it("시 미상이면 시주 null, 일주는 안정적", () => {
+    const noHour = { ...me, hour: null, minute: null };
+    const p = calculateSaju(noHour);
+    expect(p.hour).toBeNull();
+    expect(p.day.stem.han).toBe("癸");
+  });
+});

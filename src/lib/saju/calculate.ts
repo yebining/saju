@@ -21,6 +21,10 @@ export type SajuInput = {
 const findStem = (han: string) => HEAVENLY_STEMS.find((s) => s.han === han)!;
 const findBranch = (han: string) => EARTHLY_BRANCHES.find((b) => b.han === han)!;
 
+// 진태양시 보정: 한국 표준시(동경 135°) → 출생지(서울 126.978°E) 태양시 ≈ -32분.
+// (135 - 126.978) × 4분 ≈ 32.1 → 32분.
+const SOLAR_TIME_OFFSET_MIN = 32;
+
 export function calculateSaju(input: SajuInput): SajuPillars {
   // 1. 입력을 양력(Solar) 기준으로 변환
   let solar;
@@ -43,13 +47,23 @@ export function calculateSaju(input: SajuInput): SajuPillars {
     solar = Solar.fromYmd(input.year, input.month, input.day);
   }
 
-  // 2. 시간 정보 부여 (시 미상이면 정오 12:00 기본값으로 연/월/일 기둥만 안정적으로 산출)
-  const hour = input.hour ?? 12;
-  const minute = input.minute ?? 0;
+  // 2. 시간 정보 + 진태양시 보정 (시각을 아는 경우에만; 모르면 정오 기준)
+  let hour = input.hour ?? 12;
+  let minute = input.minute ?? 0;
+  let baseSolar = solar;
+  if (input.hour !== null) {
+    let total = hour * 60 + minute - SOLAR_TIME_OFFSET_MIN;
+    let dayShift = 0;
+    while (total < 0) { total += 1440; dayShift -= 1; }
+    while (total >= 1440) { total -= 1440; dayShift += 1; }
+    hour = Math.floor(total / 60);
+    minute = total % 60;
+    if (dayShift !== 0) baseSolar = solar.next(dayShift); // lunar-javascript Solar.next(days)
+  }
   const solarWithTime = Solar.fromYmdHms(
-    solar.getYear(),
-    solar.getMonth(),
-    solar.getDay(),
+    baseSolar.getYear(),
+    baseSolar.getMonth(),
+    baseSolar.getDay(),
     hour,
     minute,
     0
