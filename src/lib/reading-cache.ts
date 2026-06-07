@@ -13,8 +13,9 @@ export function readingCacheKey(input: CheckInput): string {
 export type CachedReading = { reading: Reading; deep: DeepReading };
 
 export function readCache(input: CheckInput): CachedReading | null {
+  if (typeof window === "undefined") return null;
   try {
-    const raw = sessionStorage.getItem(readingCacheKey(input));
+    const raw = window.sessionStorage.getItem(readingCacheKey(input));
     return raw ? (JSON.parse(raw) as CachedReading) : null;
   } catch {
     return null;
@@ -22,8 +23,9 @@ export function readCache(input: CheckInput): CachedReading | null {
 }
 
 export function writeCache(input: CheckInput, value: CachedReading): void {
+  if (typeof window === "undefined") return;
   try {
-    sessionStorage.setItem(readingCacheKey(input), JSON.stringify(value));
+    window.sessionStorage.setItem(readingCacheKey(input), JSON.stringify(value));
   } catch {
     /* 용량 초과 등은 무시 (캐시는 부가기능) */
   }
