@@ -1,4 +1,4 @@
-import { ReadingFactsSchema } from "@/lib/saju/reading-facts";
+import { ReadingFactsSchema, ReadingFacts } from "@/lib/saju/reading-facts";
 import { generateReading } from "@/lib/saju/reading-ai";
 import { generateDummyReading } from "@/lib/saju/reading-dummy";
 import { generateDeepBite } from "@/lib/saju/reading-deep";
@@ -25,11 +25,11 @@ export async function POST(request: Request) {
   }
 }
 
-function dummy(facts: ReturnType<typeof ReadingFactsSchema.parse>) {
+function dummy(facts: ReadingFacts) {
   const reading = generateDummyReading(facts.category, facts.meOhaeng, {
     relationLine: facts.relationLine,
   });
-  reading.score = facts.score;
+  reading.score = facts.score; // 라우트가 점수의 단일 소스 — 계산값으로 고정
   if (facts.category === "relationship" && facts.relationOhaengNote) {
     reading.ohaeng_note = facts.relationOhaengNote;
   }
