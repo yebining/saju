@@ -1,9 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const parseMock = vi.fn();
+// client는 모듈 스코프에서 즉시 생성되므로, parse 참조를 호출 시점까지 지연시킨다
+// (생성 시점엔 parseMock이 아직 초기화 전일 수 있음).
 vi.mock("@anthropic-ai/sdk", () => ({
   default: class {
-    messages = { parse: parseMock };
+    messages = {
+      parse: (...args: unknown[]) => parseMock(...args),
+    };
   },
 }));
 
@@ -43,6 +47,7 @@ describe("generateReading", () => {
     parseMock.mockResolvedValue({ parsed_output: aiOutput });
     const { reading } = await generateReading(facts);
     expect(reading.score).toBe(68);
+    expect(reading.ohaeng_note).toBe(aiOutput.ohaeng_note);
   });
 
   it("기본 풀이와 한 입 더를 함께 반환한다", async () => {
