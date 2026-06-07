@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
-import { ReadingSchema, Reading } from "../schema";
+import { ReadingSchema, Reading, RichReadingSchema, RichReading } from "../schema";
 import type { DeepReading } from "./reading-deep";
-import { ReadingFacts } from "./reading-facts";
-import { buildSystemPrompt, buildUserPrompt } from "./reading-prompt";
+import { ReadingFacts, RichFacts } from "./reading-facts";
+import { buildSystemPrompt, buildUserPrompt, buildRichSystemPrompt, buildRichUserPrompt } from "./reading-prompt";
 
 const MODEL = "gemini-2.5-flash"; // 모델 교체는 이 한 줄
 
@@ -52,6 +52,7 @@ export async function generateReading(
     config: {
       systemInstruction: buildSystemPrompt() + "\n" + JSON_SHAPE,
       responseMimeType: "application/json",
+      temperature: 0.4,
     },
   });
 
@@ -68,4 +69,22 @@ export async function generateReading(
   }
 
   return { reading, deep: { sections: deep_sections } };
+}
+
+const AIRichOutputSchema = RichReadingSchema.omit({ score: true });
+
+export async function generateRichReading(facts: RichFacts): Promise<RichReading> {
+  const res = await ai.models.generateContent({
+    model: MODEL,
+    contents: buildRichUserPrompt(facts),
+    config: {
+      systemInstruction: buildRichSystemPrompt(),
+      responseMimeType: "application/json",
+      temperature: 0.4,
+    },
+  });
+  const text = res.text;
+  if (!text) throw new Error("Gemini 빈 응답");
+  const out = AIRichOutputSchema.parse(JSON.parse(extractJson(text)));
+  return { ...out, score: facts.score };
 }
