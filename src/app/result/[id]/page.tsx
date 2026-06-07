@@ -11,6 +11,10 @@ import { ReadingFacts } from "@/lib/saju/reading-facts";
 import { DeepReading, generateDeepBite } from "@/lib/saju/reading-deep";
 import { readCache, writeCache } from "@/lib/reading-cache";
 import { Reading } from "@/lib/schema";
+import { RichReadingView } from "@/components/rich-reading";
+import { RichReading } from "@/lib/schema";
+import { RichFacts } from "@/lib/saju/reading-facts";
+import { computeDaeun } from "@/lib/saju/daeun";
 import { ScoreGauge } from "@/components/score-gauge";
 import { BowlIcon } from "@/components/bowl-icon";
 import { OhaengBar } from "@/components/ohaeng-bar";
@@ -25,8 +29,9 @@ type View = {
   themPillars: SajuPillars | null;
   meOhaeng: ReturnType<typeof countOhaeng>;
   themOhaeng: ReturnType<typeof countOhaeng> | null;
-  reading: Reading;
-  deep: DeepReading;
+  reading?: Reading;
+  deep?: DeepReading;
+  rich?: RichReading;
   hourUnknown: boolean;
 };
 
@@ -55,6 +60,36 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
       input.me.hour === null || (!!input.them && input.them.hour === null);
 
     const baseView = { category: input.category, mePillars, themPillars, meOhaeng, themOhaeng, hourUnknown };
+
+    if (input.category === "general") {
+      const pf = (p: typeof mePillars.year | null) =>
+        p ? { stemHan: p.stem.han, stemKo: p.stem.ko, branchHan: p.branch.han, branchKo: p.branch.ko } : null;
+      const richFacts: RichFacts = {
+        category: "general", score, meOhaeng, hourUnknown,
+        pillars: { year: pf(mePillars.year)!, month: pf(mePillars.month)!, day: pf(mePillars.day)!, hour: pf(mePillars.hour) },
+        daeun: computeDaeun(input.me),
+      };
+      const cachedG = readCache(input);
+      if (cachedG?.rich) { setView({ ...baseView, rich: cachedG.rich }); return; }
+      let cancelledG = false;
+      (async () => {
+        try {
+          const res = await fetch("/api/reading", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(richFacts) });
+          if (!res.ok) throw new Error(String(res.status));
+          const data = await res.json() as { rich: RichReading };
+          if (cancelledG) return;
+          writeCache(input, { rich: data.rich });
+          setView({ ...baseView, rich: data.rich });
+        } catch (e) {
+          if (cancelledG) return;
+          console.warn("[ResultPage] rich fetch 실패, 더미:", e);
+          const reading = generateDummyReading("general", meOhaeng);
+          reading.score = score;
+          setView({ ...baseView, reading, deep: generateDeepBite("general", meOhaeng) });
+        }
+      })();
+      return () => { cancelledG = true; };
+    }
 
     // 1) 캐시 우선
     const cached = readCache(input);
@@ -106,21 +141,23 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-xs font-bold text-accent shadow-sm">
           <BowlIcon variant={view.category} className="h-5 w-5" /> {meta.name}
         </span>
-        <div className="mt-4"><ScoreGauge score={view.reading.score} /></div>
-        <p className="mt-4 px-4 font-serif text-lg text-fg">&ldquo;{view.reading.headline}&rdquo;</p>
-        {view.reading.relation_line && <p className="mt-2 text-sm text-muted">{view.reading.relation_line}</p>}
+        <div className="mt-4"><ScoreGauge score={view.rich?.score ?? view.reading?.score ?? 0} /></div>
+        <p className="mt-4 px-4 font-serif text-lg text-fg">&ldquo;{view.rich?.headline ?? view.reading?.headline ?? ""}&rdquo;</p>
+        {view.reading?.relation_line && <p className="mt-2 text-sm text-muted">{view.reading.relation_line}</p>}
       </div>
 
       <OhaengBar count={view.meOhaeng} name={view.themOhaeng ? "나" : undefined} />
       {view.themOhaeng && <OhaengBar count={view.themOhaeng} name="상대" />}
 
-      <p className="rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-fg/90 shadow-sm">
-        {view.reading.ohaeng_note}
-      </p>
-
-      <ReadingSections reading={view.reading} />
-
-      <DeeperReading category={view.category} count={view.meOhaeng} deep={view.deep} />
+      {view.rich ? (
+        <RichReadingView rich={view.rich} />
+      ) : view.reading ? (
+        <>
+          <p className="rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-fg/90 shadow-sm">{view.reading.ohaeng_note}</p>
+          <ReadingSections reading={view.reading} />
+          <DeeperReading category={view.category} count={view.meOhaeng} deep={view.deep} />
+        </>
+      ) : null}
 
       <details className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <summary className="cursor-pointer text-sm font-bold text-muted">내 사주 자세히 보기</summary>

@@ -10,7 +10,7 @@ export function readingCacheKey(input: CheckInput): string {
   return "reading:" + parts.join("::");
 }
 
-export type CachedReading = { reading: Reading; deep: DeepReading };
+export type CachedReading = { reading?: Reading; deep?: DeepReading; rich?: import("@/lib/schema").RichReading };
 
 export function readCache(input: CheckInput): CachedReading | null {
   if (typeof window === "undefined") return null;
