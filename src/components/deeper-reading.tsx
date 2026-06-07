@@ -1,9 +1,17 @@
 import { Category } from "@/lib/categories";
 import { OhaengCount } from "@/lib/saju/data";
-import { generateDeepBite } from "@/lib/saju/reading-deep";
+import { generateDeepBite, DeepReading } from "@/lib/saju/reading-deep";
 
-export function DeeperReading({ category, count }: { category: Category; count: OhaengCount }) {
-  const deep = generateDeepBite(category, count);
+export function DeeperReading({
+  category,
+  count,
+  deep,
+}: {
+  category: Category;
+  count: OhaengCount;
+  deep?: DeepReading;
+}) {
+  const sections = (deep ?? generateDeepBite(category, count)).sections;
   return (
     <div className="space-y-3">
       <details className="rounded-2xl border border-border bg-card shadow-sm">
@@ -11,7 +19,7 @@ export function DeeperReading({ category, count }: { category: Category; count: 
           🥢 한 입 더 <span className="text-xs font-normal text-muted">— 무료로 더 깊은 풀이 보기</span>
         </summary>
         <div className="space-y-4 px-4 pb-4">
-          {deep.sections.map((s, i) => (
+          {sections.map((s, i) => (
             <section key={i}>
               <h4 className="text-sm font-bold text-fg">{s.title}</h4>
               <p className="mt-1 text-sm leading-relaxed text-fg/90">{s.body}</p>
