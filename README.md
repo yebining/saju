@@ -17,7 +17,7 @@ npm run test:run # 단위 테스트
 npm run build    # 프로덕션 빌드
 ```
 
-> AI 풀이를 쓰려면 `ANTHROPIC_API_KEY`를 `.env.local`에 넣으세요(`.env.local.example` 참고). 키가 없으면 결정론적 더미 풀이로 동작합니다.
+> AI 풀이를 쓰려면 `GEMINI_API_KEY`를 `.env.local`에 넣으세요(`.env.local.example` 참고, [발급](https://aistudio.google.com/apikey)). 키가 없으면 결정론적 더미 풀이로 동작합니다.
 
 ## 구조
 

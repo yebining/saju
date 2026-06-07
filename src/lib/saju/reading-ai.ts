@@ -1,40 +1,66 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { ReadingSchema, Reading } from "../schema";
 import type { DeepReading } from "./reading-deep";
 import { ReadingFacts } from "./reading-facts";
 import { buildSystemPrompt, buildUserPrompt } from "./reading-prompt";
 
-const MODEL = "claude-sonnet-4-6"; // 모델 교체는 이 한 줄
+const MODEL = "gemini-2.5-flash"; // 모델 교체는 이 한 줄
 
-// 모듈 스코프로 호이스팅 — 매 호출마다 재생성하지 않음.
-// 키가 없어도 생성 자체는 throw하지 않고, 실제 요청(parse) 시점에 throw.
-const client = new Anthropic();
+// 모듈 스코프 — 매 호출마다 재생성하지 않음. 키 없으면 요청 시점에 실패(라우트가 폴백).
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const AIReadingSchema = ReadingSchema.extend({
+// AI가 생성하는 부분만. score·relation_line 은 외부에서 계산값으로 덮어쓰므로 제외.
+const AIOutputSchema = ReadingSchema.omit({ score: true, relation_line: true }).extend({
   deep_sections: z
     .array(z.object({ title: z.string().min(2).max(24), body: z.string().min(20).max(400) }))
     .min(2)
     .max(3),
 });
 
+// 모델이 따를 출력 형태(structured output 스키마 대신 프롬프트로 강제 + zod로 검증).
+const JSON_SHAPE = [
+  "",
+  "출력은 아래 형태의 JSON 객체 '하나만' 내보내세요. 코드펜스나 설명 없이 순수 JSON만:",
+  "{",
+  '  "headline": "4~40자 한 줄 총평",',
+  '  "ohaeng_note": "10~200자, 기운에 대한 한 문단",',
+  '  "strengths": [{ "title": "2~24자", "detail": "10~220자" }],  // 2~3개',
+  '  "cautions": [{ "title": "2~24자", "detail": "10~220자" }],   // 1~2개',
+  '  "advice": "10~200자 조언",',
+  '  "deep_sections": [{ "title": "2~24자", "body": "20~400자" }] // 2~3개, 더 깊은 풀이',
+  "}",
+  "score 필드는 넣지 마세요(외부에서 계산). 명리 용어는 절대 쓰지 마세요.",
+].join("\n");
+
+/** 모델 응답에서 JSON 본문만 안전하게 추출(혹시 코드펜스/잡텍스트가 섞여도). */
+function extractJson(text: string): string {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced) return fenced[1].trim();
+  const s = text.indexOf("{");
+  const e = text.lastIndexOf("}");
+  if (s !== -1 && e !== -1 && e > s) return text.slice(s, e + 1);
+  return text.trim();
+}
+
 export async function generateReading(
   facts: ReadingFacts
 ): Promise<{ reading: Reading; deep: DeepReading }> {
-  const res = await client.messages.parse({
+  const res = await ai.models.generateContent({
     model: MODEL,
-    max_tokens: 4096,
-    system: buildSystemPrompt(),
-    messages: [{ role: "user", content: buildUserPrompt(facts) }],
-    output_config: { format: zodOutputFormat(AIReadingSchema) },
+    contents: buildUserPrompt(facts),
+    config: {
+      systemInstruction: buildSystemPrompt() + "\n" + JSON_SHAPE,
+      responseMimeType: "application/json",
+    },
   });
 
-  const out = res.parsed_output;
-  if (!out) throw new Error("AI 풀이 파싱 실패");
+  const text = res.text;
+  if (!text) throw new Error("Gemini 빈 응답");
 
+  const out = AIOutputSchema.parse(JSON.parse(extractJson(text)));
   const { deep_sections, ...readingPart } = out;
-  const reading: Reading = { ...readingPart, score: facts.score };
+  const reading: Reading = { ...readingPart, score: facts.score }; // 점수 고정
 
   if (facts.category === "relationship") {
     if (facts.relationLine) reading.relation_line = facts.relationLine;

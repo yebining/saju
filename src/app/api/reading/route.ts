@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   }
 
   // 키 없으면 호출 없이 더미
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return Response.json(dummy(facts));
   }
 

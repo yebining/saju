@@ -1,21 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const parseMock = vi.fn();
-// client는 모듈 스코프에서 즉시 생성되므로, parse 참조를 호출 시점까지 지연시킨다
-// (생성 시점엔 parseMock이 아직 초기화 전일 수 있음).
-vi.mock("@anthropic-ai/sdk", () => ({
-  default: class {
-    messages = {
-      parse: (...args: unknown[]) => parseMock(...args),
-    };
+// @google/genai 모킹: models.generateContent 만 사용.
+// 래퍼 화살표함수로 호출 시점에 generateContentMock 참조(vitest 호이스팅 안전).
+const generateContentMock = vi.fn();
+vi.mock("@google/genai", () => ({
+  GoogleGenAI: class {
+    models = { generateContent: (...args: unknown[]) => generateContentMock(...args) };
   },
 }));
 
 import { generateReading } from "./reading-ai";
 import type { ReadingFacts } from "./reading-facts";
 
+// 모델이 내보내는 JSON 본문(점수 없음 — 외부에서 계산).
 const aiOutput = {
-  score: 5,
   headline: "먼저 다가갈수록 풀리는 시기예요",
   ohaeng_note: "표현하는 기운이 강해 마음이 잘 드러나요.",
   strengths: [
@@ -37,28 +35,38 @@ const facts: ReadingFacts = {
   hourUnknown: false,
 };
 
+function reply(text: string) {
+  return { text };
+}
+
 beforeEach(() => {
-  parseMock.mockReset();
-  process.env.ANTHROPIC_API_KEY = "test-key";
+  generateContentMock.mockReset();
+  process.env.GEMINI_API_KEY = "test-key";
 });
 
-describe("generateReading", () => {
-  it("AI 점수를 계산값으로 덮어쓴다", async () => {
-    parseMock.mockResolvedValue({ parsed_output: aiOutput });
+describe("generateReading (Gemini)", () => {
+  it("점수를 계산값으로 덮어쓰고, 비관계는 ohaeng_note를 AI 출력 그대로 둔다", async () => {
+    generateContentMock.mockResolvedValue(reply(JSON.stringify(aiOutput)));
     const { reading } = await generateReading(facts);
-    expect(reading.score).toBe(68);
+    expect(reading.score).toBe(68); // AI엔 score 없음 → facts.score
     expect(reading.ohaeng_note).toBe(aiOutput.ohaeng_note);
   });
 
   it("기본 풀이와 한 입 더를 함께 반환한다", async () => {
-    parseMock.mockResolvedValue({ parsed_output: aiOutput });
+    generateContentMock.mockResolvedValue(reply(JSON.stringify(aiOutput)));
     const { reading, deep } = await generateReading(facts);
     expect(reading.headline.length).toBeGreaterThan(3);
     expect(deep.sections.length).toBeGreaterThanOrEqual(2);
   });
 
+  it("코드펜스로 감싼 JSON도 파싱한다", async () => {
+    generateContentMock.mockResolvedValue(reply("```json\n" + JSON.stringify(aiOutput) + "\n```"));
+    const { reading } = await generateReading(facts);
+    expect(reading.headline).toBe(aiOutput.headline);
+  });
+
   it("관계 궁합이면 relation_line·ohaeng_note를 계산값으로 세팅한다", async () => {
-    parseMock.mockResolvedValue({ parsed_output: aiOutput });
+    generateContentMock.mockResolvedValue(reply(JSON.stringify(aiOutput)));
     const { reading } = await generateReading({
       ...facts,
       category: "relationship",
@@ -70,8 +78,13 @@ describe("generateReading", () => {
     expect(reading.ohaeng_note).toBe("목생화 — 따뜻하게 키워주는 관계");
   });
 
-  it("parsed_output 이 없으면 throw 한다 (라우트가 폴백하도록)", async () => {
-    parseMock.mockResolvedValue({ parsed_output: null });
+  it("빈 응답이면 throw 한다 (라우트가 폴백하도록)", async () => {
+    generateContentMock.mockResolvedValue(reply(""));
+    await expect(generateReading(facts)).rejects.toThrow();
+  });
+
+  it("JSON이 아니면 throw 한다", async () => {
+    generateContentMock.mockResolvedValue(reply("그냥 텍스트입니다"));
     await expect(generateReading(facts)).rejects.toThrow();
   });
 });
