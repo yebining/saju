@@ -18,6 +18,8 @@ npm run build    # 프로덕션 빌드
 ```
 
 > AI 풀이를 쓰려면 `GEMINI_API_KEY`를 `.env.local`에 넣으세요(`.env.local.example` 참고, [발급](https://aistudio.google.com/apikey)). 키가 없으면 결정론적 더미 풀이로 동작합니다.
+>
+> (선택) 풀이를 영구 저장(같은 사람=항상 같은 결과)하려면 `SUPABASE_URL`·`SUPABASE_SERVICE_ROLE_KEY`를 `.env.local`/Vercel에 넣고 `docs/supabase-schema.sql`을 Supabase에서 실행하세요. 없으면 저장 없이 동작합니다.
 
 ## 구조
 
