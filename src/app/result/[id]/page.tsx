@@ -144,7 +144,7 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
           <BowlIcon variant={view.category} className="h-5 w-5" /> {meta.name}
         </span>
         <div className="mt-4"><ScoreGauge score={view.rich?.score ?? view.reading?.score ?? 0} /></div>
-        <p className="mt-4 px-4 font-serif text-lg text-fg">&ldquo;{view.rich?.headline ?? view.reading?.headline ?? ""}&rdquo;</p>
+        <p className="mt-4 px-4 font-display text-xl leading-snug text-fg">&ldquo;{view.rich?.headline ?? view.reading?.headline ?? ""}&rdquo;</p>
         {view.reading?.relation_line && <p className="mt-2 text-sm text-muted">{view.reading.relation_line}</p>}
       </div>
 

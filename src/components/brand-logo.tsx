@@ -23,7 +23,7 @@ export function BrandLogo({ className }: { className?: string }) {
         <circle cx="15.6" cy="33" r="1.7" fill="#E8A0B0" opacity="0.55" />
         <circle cx="32.4" cy="33" r="1.7" fill="#E8A0B0" opacity="0.55" />
       </svg>
-      <span className="font-serif text-xl font-bold text-accent">사주 한 입</span>
+      <span className="font-display text-xl text-accent">사주 한 입</span>
     </div>
   );
 }

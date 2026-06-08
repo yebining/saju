@@ -23,7 +23,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-20 border-t border-border bg-card/50">
       <div className="mx-auto max-w-md px-6 py-10 text-center">
-        <p className="font-serif text-base font-bold text-fg/75">{BIZ.brand}</p>
+        <p className="font-display text-lg text-fg/75">{BIZ.brand}</p>
 
         <nav className="mt-4 flex items-center justify-center text-xs font-bold text-fg/70">
           <Link href="/terms" className="transition-colors hover:text-accent">이용약관</Link>
