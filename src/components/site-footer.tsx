@@ -1,64 +1,48 @@
 import Link from "next/link";
-import { CATEGORIES } from "@/lib/categories";
-import { BowlIcon } from "@/components/bowl-icon";
 
-/** 사이트 공통 푸터 — 따뜻한 딥브라운 밴드로 "진짜 서비스" 신뢰감을 준다. */
+// ─────────────────────────────────────────────────────────────
+// 사업자 정보 — ⚠️ 데모용 더미값입니다(대표명만 실제). 실제 운영 시 교체하세요.
+// (통신판매업신고번호·사업자등록번호는 실제 신고/등록 후 기재해야 합니다.)
+// ─────────────────────────────────────────────────────────────
+const BIZ = {
+  brand: "사주 한 입",
+  ceo: "김예빈",
+  address: "서울특별시 강남구 테헤란로 00, 0층",
+  bizNo: "123-45-67890",
+  salesNo: "제2026-서울강남-0000호",
+  email: "help@sajuhanip.kr",
+  hours: "평일 10:00 ~ 19:00",
+};
+
+function Sep() {
+  return <span className="mx-2 text-border">|</span>;
+}
+
+/** 사이트 공통 푸터 — eunha-saju 스타일의 라이트·중앙정렬 공식 정보 블록. */
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-[#5b4a3c] bg-[#3d3228] text-[#e7d9c6]">
-      {/* 위쪽 톱니 같은 부드러운 곡선 대신, 크림 본문과 자연스럽게 이어지는 얇은 하이라이트 */}
-      <div className="h-1 w-full bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
+    <footer className="mt-20 border-t border-border bg-card/50">
+      <div className="mx-auto max-w-md px-6 py-10 text-center">
+        <p className="font-serif text-base font-bold text-fg/75">{BIZ.brand}</p>
 
-      <div className="mx-auto max-w-md px-6 py-12">
-        {/* 브랜드 */}
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fbf3e9]/95 shadow-sm">
-            <BowlIcon variant="general" className="h-8 w-8" />
-          </span>
-          <div>
-            <p className="font-serif text-lg font-bold text-[#fbf3e9]">사주 한 입</p>
-            <p className="text-xs text-[#b39f88]">복잡한 사주를, 한 입씩 가볍게.</p>
-          </div>
+        <nav className="mt-4 flex items-center justify-center text-xs font-bold text-fg/70">
+          <Link href="/terms" className="transition-colors hover:text-accent">이용약관</Link>
+          <Sep />
+          <Link href="/privacy" className="transition-colors hover:text-accent">개인정보처리방침</Link>
+        </nav>
+
+        <div className="mx-auto mt-5 max-w-xs space-y-1 text-[11px] leading-relaxed text-muted">
+          <p>상호 {BIZ.brand}<Sep />대표 {BIZ.ceo}</p>
+          <p>{BIZ.address}</p>
+          <p>사업자등록번호 {BIZ.bizNo}</p>
+          <p>통신판매업신고번호 {BIZ.salesNo}</p>
+          <p>고객센터 {BIZ.email}<Sep />{BIZ.hours}</p>
         </div>
 
-        {/* 따뜻한 한 마디 */}
-        <p className="mt-6 text-xs leading-relaxed text-[#c7b6a0]">
-          생일만 알려주면 AI가 명리학 기본 규칙으로 풀어드려요. 신비주의나 겁주기 없이,
-          따뜻한 인사이트로요. 풀이는 오락·참고용이니 인생의 선택은 결국 당신의 몫이에요 🍚
+        <p className="mx-auto mt-5 max-w-xs text-[11px] leading-relaxed text-muted/80">
+          본 서비스의 풀이는 AI가 생성한 오락·참고용 콘텐츠이며, 전문적인 조언을 대신하지 않습니다.
         </p>
-
-        {/* 링크 */}
-        <div className="mt-9 grid grid-cols-2 gap-y-7 text-sm">
-          <div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#8f7d68]">둘러보기</p>
-            <ul className="space-y-2">
-              {CATEGORIES.map((c) => (
-                <li key={c.key}>
-                  <Link
-                    href={`/check/${c.key}`}
-                    className="text-[#d7c7b1] transition-colors hover:text-[#cbb6f0]"
-                  >
-                    {c.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#8f7d68]">안내</p>
-            <ul className="space-y-2">
-              <li><Link href="/" className="text-[#d7c7b1] transition-colors hover:text-[#cbb6f0]">홈</Link></li>
-              <li><Link href="/terms" className="text-[#d7c7b1] transition-colors hover:text-[#cbb6f0]">이용약관</Link></li>
-              <li><Link href="/privacy" className="text-[#d7c7b1] transition-colors hover:text-[#cbb6f0]">개인정보처리방침</Link></li>
-            </ul>
-          </div>
-        </div>
-
-        {/* 하단 카피라이트 */}
-        <div className="mt-11 border-t border-white/10 pt-6 text-[11px] leading-relaxed text-[#8f7d68]">
-          <p>© 2026 사주 한 입. 풀이는 AI가 생성한 오락·참고용 콘텐츠입니다.</p>
-          <p className="mt-1">회원가입 없이 이용하며, 입력한 생일 정보는 풀이 계산에만 쓰여요.</p>
-        </div>
+        <p className="mt-1.5 text-[11px] text-muted/70">© 2026 {BIZ.brand}. All rights reserved.</p>
       </div>
     </footer>
   );
