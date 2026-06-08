@@ -18,6 +18,7 @@ export const ReadingFactsSchema = z.object({
   relationLine: z.string().optional(),
   relationOhaengNote: z.string().optional(),
   hourUnknown: z.boolean(),
+  cacheKey: z.string().optional(), // 서버 저장/조회 키 (= readingCacheKey)
 });
 
 export type ReadingFacts = z.infer<typeof ReadingFactsSchema>;

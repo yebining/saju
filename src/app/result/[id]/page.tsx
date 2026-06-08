@@ -9,7 +9,7 @@ import { describeRelation } from "@/lib/saju/relations";
 import { scoreFromOhaeng, generateDummyReading } from "@/lib/saju/reading-dummy";
 import { ReadingFacts } from "@/lib/saju/reading-facts";
 import { DeepReading, generateDeepBite } from "@/lib/saju/reading-deep";
-import { readCache, writeCache } from "@/lib/reading-cache";
+import { readCache, writeCache, readingCacheKey } from "@/lib/reading-cache";
 import { Reading } from "@/lib/schema";
 import { RichReadingView } from "@/components/rich-reading";
 import { RichReading } from "@/lib/schema";
@@ -68,6 +68,7 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
         category: "general", score, meOhaeng, hourUnknown,
         pillars: { year: pf(mePillars.year)!, month: pf(mePillars.month)!, day: pf(mePillars.day)!, hour: pf(mePillars.hour) },
         daeun: computeDaeun(input.me),
+        cacheKey: readingCacheKey(input),
       };
       const cachedG = readCache(input);
       if (cachedG?.rich) { setView({ ...baseView, rich: cachedG.rich }); return; }
@@ -99,6 +100,7 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
     const facts: ReadingFacts = {
       category: input.category, score, meOhaeng,
       themOhaeng, relationLine, relationOhaengNote, hourUnknown,
+      cacheKey: readingCacheKey(input),
     };
     let cancelled = false;
     (async () => {
